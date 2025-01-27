@@ -10,7 +10,6 @@ import {
   CardContent,
   CardFooter,
 } from "@/components/ui/card";
-import { useAuth } from "@/context/AuthProvider"; // If needed for admin-only features
 import axiosInstance from "@/utils/axiosInstance";
 
 export default function ContactUs() {
@@ -47,7 +46,7 @@ export default function ContactUs() {
   };
 
   return (
-    <div className="flex flex-col items-center justify-center min-h-screen px-4 py-12 sm:px-6 lg:px-8">
+    <div className="flex flex-col items-center justify-center px-4 py-12 sm:px-6 lg:px-8">
       <Card className="w-full max-w-2xl">
         <CardHeader className="space-y-1">
           <CardTitle className="text-2xl font-bold text-center">

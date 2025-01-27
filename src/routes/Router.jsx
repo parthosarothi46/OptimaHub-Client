@@ -7,6 +7,7 @@ import PrivateRoute from "./PrivateRoute";
 import Dashboard from "@/pages/Dashboard";
 import EmployeeDetail from "@/components/shared/EmployeeDetail";
 import Home from "@/pages/Home";
+import AboutUs from "@/pages/AboutUs";
 
 const Router = () => {
   return (
@@ -16,6 +17,7 @@ const Router = () => {
         <Route path="login" element={<Login />} />
         <Route path="register" element={<Register />} />
         <Route path="contact" element={<ContactUs />} />
+        <Route path="about" element={<AboutUs />} />
         <Route
           path="/dashboard"
           element={
