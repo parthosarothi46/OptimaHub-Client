@@ -1,150 +1,171 @@
+import { useState } from "react";
+import { Moon, Sun, Layers, Menu } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Sheet, SheetTrigger, SheetContent } from "@/components/ui/sheet";
-import { Link } from "react-router";
-import { Moon, Sun, Layers, MenuIcon } from "lucide-react";
-import { useTheme } from "@/context/ThemeProvider";
+import { Sheet, SheetContent } from "@/components/ui/sheet";
 import {
   DropdownMenu,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
   DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Avatar, AvatarImage } from "@/components/ui/avatar";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useAuth } from "@/context/AuthProvider";
+import { Link } from "react-router";
+import { useTheme } from "@/context/ThemeProvider";
 
-export default function Navbar() {
+const navItems = [
+  { href: "/", label: "Home" },
+  { href: "/dashboard", label: "Dashboard" },
+  { href: "/contact", label: "Contact Us" },
+  { href: "/about", label: "About Us" },
+];
+
+const Navbar = () => {
+  const [isOpen, setIsOpen] = useState(false);
   const { theme, setTheme } = useTheme();
-  const isDark = theme === "dark";
   const { user, logout } = useAuth();
 
   const handleLogout = async () => {
     await logout();
+    setIsOpen(false);
   };
 
   return (
-    <header className="sticky top-0 z-50 w-full border-b">
-      <div className="container mx-auto flex h-16 max-w-6xl items-center justify-between px-4 md:px-6">
-        <Link href="#" className="flex items-center gap-2">
-          <Layers className="h-6 w-6" />
-          <p className="text-lg font-semibold">OptimaHub</p>
-        </Link>
-        <nav className="hidden items-center gap-6 text-sm font-medium md:flex">
-          <Link href="#">Home</Link>
-          <Link href="#">Dashboard</Link>
-          <Link href="#">Contact Us</Link>
-          <Link href="#">About Us</Link>
-        </nav>
-        <div className="flex items-center gap-4">
+    <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+      <div className="container mx-auto p-3 flex h-14 items-center justify-between">
+        {/* Logo and Website Name */}
+        <div className="flex items-center space-x-2">
+          <Link to="/" className="flex items-center space-x-2">
+            <Layers className="h-6 w-6" />
+            <span className="font-bold">OptimaHub</span>
+          </Link>
+        </div>
+
+        {/* Desktop Navigation */}
+        <div className="hidden md:flex items-center space-x-6">
+          <nav className="flex items-center space-x-6 text-sm font-medium">
+            {navItems.map((item) => (
+              <Link
+                key={item.href}
+                to={item.href}
+                className="transition-colors hover:text-foreground/80 text-foreground/60"
+              >
+                {item.label}
+              </Link>
+            ))}
+          </nav>
+        </div>
+
+        {/* Theme Toggle and User Menu */}
+        <div className="flex items-center space-x-2">
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={() => setTheme(theme === "light" ? "dark" : "light")}
+          >
+            <Sun className="h-5 w-5 rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0" />
+            <Moon className="absolute h-5 w-5 rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100" />
+            <span className="sr-only">Toggle theme</span>
+          </Button>
           {user ? (
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button variant="outline" size="icon">
-                  <Avatar>
-                    <AvatarImage src={user?.photoURL} />
+                <Button
+                  variant="ghost"
+                  className="relative h-8 w-8 rounded-full"
+                >
+                  <Avatar className="h-8 w-8">
+                    <AvatarImage
+                      src={user.photoURL || ""}
+                      alt={user.displayName || ""}
+                    />
+                    <AvatarFallback>
+                      {user.displayName?.charAt(0) || "U"}
+                    </AvatarFallback>
                   </Avatar>
                 </Button>
               </DropdownMenuTrigger>
-              <DropdownMenuContent align="end">
-                <div className="flex flex-col items-center p-4">
-                  <p className="font-medium">{user?.displayName}</p>
-                </div>
+              <DropdownMenuContent className="w-56" align="end" forceMount>
+                <DropdownMenuLabel className="font-normal">
+                  <div className="flex flex-col space-y-1">
+                    <p className="text-sm font-medium leading-none">
+                      {user.displayName}
+                    </p>
+                    <p className="text-xs leading-none text-muted-foreground">
+                      {user.email}
+                    </p>
+                  </div>
+                </DropdownMenuLabel>
+                <DropdownMenuSeparator />
                 <DropdownMenuItem onClick={handleLogout}>
-                  Logout
+                  Log out
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
           ) : (
-            <div className="hidden items-center gap-2 text-sm font-medium md:flex">
-              <Link to="login">
-                <Button variant="outline">Login</Button>
-              </Link>
-              <Link to="register">
-                <Button variant="outline">Register</Button>
-              </Link>
+            <div className="hidden space-x-2 md:flex">
+              <Button variant="outline" asChild>
+                <Link to="/login">Login</Link>
+              </Button>
+              <Button asChild>
+                <Link to="/register">Register</Link>
+              </Button>
             </div>
           )}
-
+          {/* Mobile Menu Button */}
           <Button
-            onClick={() => setTheme(isDark ? "light" : "dark")}
-            size="icon"
-            variant="outline"
+            variant="ghost"
+            className="px-0 text-base hover:bg-transparent focus-visible:bg-transparent focus-visible:ring-0 focus-visible:ring-offset-0 md:hidden"
+            onClick={() => setIsOpen(true)}
           >
-            <div
-              className={`cursor-pointer transition-transform duration-500 ${
-                isDark ? "rotate-180" : "rotate-0"
-              }`}
-            >
-              {isDark ? (
-                <Sun className="h-[1.2rem] w-[1.2rem] rotate-0 transition-all" />
-              ) : (
-                <Moon className="h-[1.2rem] w-[1.2rem] rotate-0 transition-all" />
-              )}
-            </div>
+            <Menu className="h-6 w-6" />
+            <span className="sr-only">Toggle Menu</span>
           </Button>
-
-          <Sheet>
-            <SheetTrigger asChild>
-              <Button
-                variant="outline"
-                size="icon"
-                className="rounded-md md:hidden"
-              >
-                <MenuIcon className="h-5 w-5" />
-                <span className="sr-only">Toggle navigation menu</span>
-              </Button>
-            </SheetTrigger>
-            <SheetContent side="bottom" className="md:hidden">
-              <div className="grid gap-4 p-4">
-                <Link
-                  href="#"
-                  className="text-sm font-medium text-gray-500 hover:text-gray-900 dark:text-gray-400 dark:hover:text-gray-50"
-                >
-                  Home
-                </Link>
-                <Link
-                  href="#"
-                  className="text-sm font-medium text-gray-500 hover:text-gray-900 dark:text-gray-400 dark:hover:text-gray-50"
-                >
-                  Dashboard
-                </Link>
-                <Link
-                  href="#"
-                  className="text-sm font-medium text-gray-500 hover:text-gray-900 dark:text-gray-400 dark:hover:text-gray-50"
-                >
-                  Contact Us
-                </Link>
-                <Link
-                  href="#"
-                  className="text-sm font-medium text-gray-500 hover:text-gray-900 dark:text-gray-400 dark:hover:text-gray-50"
-                >
-                  About Us
-                </Link>
-                <div className="flex flex-col gap-2">
-                  {!user && (
-                    <>
-                      <Button variant="outline" className="w-full">
-                        Login
-                      </Button>
-                      <Button variant="outline" className="w-full">
-                        Register
-                      </Button>
-                    </>
-                  )}
-                  {user && (
-                    <Button
-                      onClick={handleLogout}
-                      variant="outline"
-                      className="w-full"
-                    >
-                      Logout
-                    </Button>
-                  )}
-                </div>
-              </div>
-            </SheetContent>
-          </Sheet>
         </div>
       </div>
+
+      {/* Mobile Sidebar Menu */}
+      <Sheet open={isOpen} onOpenChange={setIsOpen}>
+        <SheetContent side="bottom">
+          <div className="my-4 h-[calc(100vh-8rem)] pb-10">
+            <div className="flex flex-col space-y-3">
+              {navItems.map((item) => (
+                <Link
+                  key={item.href}
+                  to={item.href}
+                  className="text-muted-foreground hover:text-foreground"
+                  onClick={() => setIsOpen(false)}
+                >
+                  {item.label}
+                </Link>
+              ))}
+            </div>
+            {!user && (
+              <div className="mt-4 flex flex-col space-y-2">
+                <Button
+                  asChild
+                  variant="outline"
+                  onClick={() => setIsOpen(false)}
+                >
+                  <Link to="/login">Login</Link>
+                </Button>
+                <Button asChild onClick={() => setIsOpen(false)}>
+                  <Link to="/register">Register</Link>
+                </Button>
+              </div>
+            )}
+            {user && (
+              <Button className="mt-4" variant="outline" onClick={handleLogout}>
+                Log out
+              </Button>
+            )}
+          </div>
+        </SheetContent>
+      </Sheet>
     </header>
   );
-}
+};
+
+export default Navbar;
