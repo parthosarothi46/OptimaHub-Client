@@ -20,23 +20,14 @@ import {
 import { Loader2, Upload } from "lucide-react";
 import { useAuth } from "@/context/AuthProvider";
 import { FcGoogle } from "react-icons/fc";
+import { useNavigate } from "react-router";
+import { toast } from "sonner";
 
-export default function Register() {
-  const { register, googleLogin } = useAuth(); // Access register function from context
+const Register = () => {
+  const { register, googleLogin } = useAuth();
   const [isLoading, setIsLoading] = useState(false);
   const [selectedImage, setSelectedImage] = useState(null);
-
-  const handleGoogleLogin = async () => {
-    setIsLoading(true);
-    try {
-      await googleLogin();
-      // Handle successful Google login (e.g., redirect to dashboard or home page)
-    } catch (error) {
-      console.error("Google login failed:", error.message);
-    } finally {
-      setIsLoading(false);
-    }
-  };
+  const navigate = useNavigate();
 
   const [formData, setFormData] = useState({
     name: "",
@@ -51,18 +42,31 @@ export default function Register() {
 
   console.log(formData);
 
+  const handleGoogleLogin = async () => {
+    setIsLoading(true);
+    try {
+      await googleLogin();
+      toast.success("Successfully logged in with Google");
+      navigate("/");
+    } catch (error) {
+      console.error("Google login failed:", error.message);
+      toast.error("Google login failed. Please try again.");
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
-  // Upload Image to ImgBB
   const handleImageChange = async (event) => {
     const file = event.target.files?.[0];
     if (file) {
       setIsLoading(true);
-      const formData = new FormData();
-      formData.append("image", file);
+      const uploadData = new FormData();
+      uploadData.append("image", file);
 
       try {
         const response = await fetch(
@@ -71,7 +75,7 @@ export default function Register() {
           }`,
           {
             method: "POST",
-            body: formData,
+            body: uploadData,
           }
         );
         const data = await response.json();
@@ -81,32 +85,47 @@ export default function Register() {
           setFormData((prev) => ({ ...prev, photo: imageUrl }));
         } else {
           console.error("ImgBB upload failed:", data.error.message);
+          toast.error("Failed to upload image. Please try again.");
         }
       } catch (error) {
         console.error("Error uploading image:", error.message);
+        toast.error("Error uploading image. Please try again.");
       } finally {
         setIsLoading(false);
       }
     }
   };
 
-  async function onSubmit(event) {
+  const validatePassword = (password) => {
+    const regex = /^(?=.*[A-Z])(?=.*[!@#$%^&*])(?=.{6,})/;
+    return regex.test(password);
+  };
+
+  const onSubmit = async (event) => {
     event.preventDefault();
     setIsLoading(true);
 
+    if (!validatePassword(formData.password)) {
+      toast.error(
+        "Password must be at least 6 characters long, include a capital letter, and a special character."
+      );
+      setIsLoading(false);
+      return;
+    }
+
     try {
       const response = await register(formData);
-
       if (response.success) {
-        // Redirect or show success message
-        console.log("Account created successfully", response.user);
+        toast.success("Account created successfully!");
+        navigate("/");
       }
     } catch (error) {
       console.error("Registration error:", error.message);
+      toast.error("Registration failed. Please try again.");
     } finally {
       setIsLoading(false);
     }
-  }
+  };
 
   return (
     <div className="flex items-center justify-center min-h-screen px-4 py-12 sm:px-6 lg:px-8">
@@ -164,7 +183,6 @@ export default function Register() {
                 />
               </div>
             </div>
-
             {/* Professional Information Section */}
             <div className="space-y-4">
               <h3 className="text-lg font-medium">Professional Information</h3>
@@ -197,8 +215,7 @@ export default function Register() {
                     name="designation"
                     value={formData.designation}
                     onChange={handleInputChange}
-                    placeholder="Software Engineer"
-                    required
+                    placeholder="Sales Assistant"
                     disabled={isLoading}
                   />
                 </div>
@@ -210,7 +227,6 @@ export default function Register() {
                     value={formData.bankAccountNo}
                     onChange={handleInputChange}
                     placeholder="XXXX-XXXX-XXXX-XXXX"
-                    required
                     disabled={isLoading}
                   />
                 </div>
@@ -222,14 +238,13 @@ export default function Register() {
                     type="number"
                     value={formData.salary}
                     onChange={handleInputChange}
-                    placeholder="50000"
+                    placeholder="1000"
                     required
                     disabled={isLoading}
                   />
                 </div>
               </div>
             </div>
-
             {/* Photo Upload Section */}
             <div className="space-y-4">
               <h3 className="text-lg font-medium">Profile Photo</h3>
@@ -260,13 +275,11 @@ export default function Register() {
                 </div>
               </div>
             </div>
-
             <Button className="w-full" type="submit" disabled={isLoading}>
               {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
               Create Account
             </Button>
           </form>
-
           <div className="relative my-6">
             <div className="absolute inset-0 flex items-center">
               <span className="w-full border-t" />
@@ -277,7 +290,6 @@ export default function Register() {
               </span>
             </div>
           </div>
-
           <Button
             className="w-full"
             variant="outline"
@@ -307,4 +319,6 @@ export default function Register() {
       </Card>
     </div>
   );
-}
+};
+
+export default Register;

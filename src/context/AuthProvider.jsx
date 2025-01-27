@@ -1,89 +1,51 @@
-import { createContext, useContext, useEffect, useState } from "react";
+import { useState, createContext, useContext, useEffect } from "react";
 import {
   createUserWithEmailAndPassword,
   signInWithEmailAndPassword,
-  signInWithPopup,
-  signOut,
-  onAuthStateChanged,
   updateProfile,
+  onAuthStateChanged,
+  signInWithPopup,
+  GoogleAuthProvider,
+  signOut,
 } from "firebase/auth";
-import axiosInstance from "@/utils/axiosInstance";
-import { auth, googleProvider } from "@/firebase/firebase.config";
+import { auth } from "@/firebase/firebase.config";
+import useaxiosInstance from "@/utils/axiosInstance";
 
-const AuthContext = createContext();
+const AuthContext = createContext(null);
 
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
+  const axiosInstance = useaxiosInstance();
 
-  useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
-      if (currentUser) {
-        try {
-          const token = localStorage.getItem("token");
-          if (!token) {
-            throw new Error("Token not found. Please log in again.");
-          }
+  console.log(user);
 
-          // Fetch user info from backend using token
-          const response = await axiosInstance.get(
-            `/auth/user/${currentUser.email}`,
-            {
-              headers: {
-                Authorization: `Bearer ${token}`,
-              },
-            }
-          );
-
-          // Check if response is valid before accessing data
-          if (response && response.data) {
-            // If backend returns user data, update the state
-            setUser({
-              ...currentUser,
-              role: response.data.role,
-              designation: response.data.designation,
-              salary: response.data.salary,
-              bankAccountNo: response.data.bankAccountNo,
-              photo: response.data.photo,
-            });
-          } else {
-            console.error("No user data found in response.");
-          }
-        } catch (error) {
-          console.error("Error fetching user info:", error.message);
-          setUser(null);
-        }
-      } else {
-        setUser(null);
-      }
-      setLoading(false);
-    });
-
-    return unsubscribe;
-  }, []);
-
-  console.log(user); // Log the response data to debug
-
-  const register = async ({
-    name,
-    email,
-    password,
-    role,
-    designation,
-    bankAccountNo,
-    salary,
-    photo,
-  }) => {
+  // Register a new user
+  const register = async (userData) => {
+    setLoading(true);
     try {
-      const userCredential = await createUserWithEmailAndPassword(
+      const {
+        name,
+        email,
+        password,
+        role,
+        designation,
+        bankAccountNo,
+        salary,
+        photo,
+      } = userData;
+
+      // Firebase registration
+      const { user } = await createUserWithEmailAndPassword(
         auth,
         email,
         password
       );
-      const firebaseUser = userCredential.user;
 
-      await updateProfile(firebaseUser, { displayName: name, photoURL: photo });
+      // Update Firebase user profile
+      await updateProfile(user, { displayName: name, photoURL: photo });
 
+      // Backend registration
       const response = await axiosInstance.post("/register", {
         name,
         email,
@@ -95,76 +57,101 @@ export const AuthProvider = ({ children }) => {
         photo,
       });
 
-      const { token } = response.data;
-      localStorage.setItem("token", token);
-
-      return { success: true, user: firebaseUser };
-    } catch (error) {
-      console.error("Error registering user:", error.message);
-      throw new Error("Registration failed. Please try again.");
-    }
-  };
-
-  const login = async (email, password) => {
-    try {
-      const userCredential = await signInWithEmailAndPassword(
-        auth,
-        email,
-        password
-      );
-
-      const response = await axiosInstance.post("/auth/login", {
-        email,
-        password,
-      });
-      const { token } = response.data;
-
-      localStorage.setItem("token", token);
-      return { success: true, user: userCredential.user };
-    } catch (error) {
-      console.error("Error logging in:", error.message);
-      throw new Error("Login failed. Please check your credentials.");
-    }
-  };
-
-  const googleLogin = async () => {
-    try {
-      const result = await signInWithPopup(auth, googleProvider);
-      const { displayName, email, photoURL } = result.user;
-
-      const response = await axiosInstance.post("/auth/social-login", {
-        name: displayName,
-        email,
-        role: "employee",
-        designation: "",
-        bankAccountNo: "",
-        salary: 0,
-        photo: photoURL || "https://example.com/default-avatar.png",
-      });
-
-      const { token } = response.data;
-      localStorage.setItem("token", token);
-
-      return { success: true, user: result.user };
-    } catch (error) {
+      // Check if the backend response contains 'success'
+      if (response.data && response.data.success) {
+        console.log("Registration successful:", response.data.message);
+      } else {
+        console.error(
+          "Registration failed:",
+          response.data?.message || "Unknown error"
+        );
+      }
+    } catch (err) {
+      // Log detailed error for debugging
       console.error(
-        "Error with Google login:",
-        error.response || error.message
+        "Error during registration:",
+        err.response?.data || err.message
       );
-      throw new Error("Google login failed. Please try again.");
+    } finally {
+      setLoading(false);
     }
   };
 
+  // Login with email and password
+  const login = async (email, password) => {
+    setLoading(true);
+    try {
+      const response = await signInWithEmailAndPassword(auth, email, password);
+
+      // Fetch and store token from backend
+      const userInfo = { email };
+      const tokenRes = await axiosInstance.post("/jwt", userInfo);
+
+      if (tokenRes.data.token) {
+        localStorage.setItem("access-token", tokenRes.data.token);
+      }
+
+      return response;
+    } catch (err) {
+      console.error("Error during login:", err.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Social login (Google)
+  const googleLogin = async () => {
+    setLoading(true);
+    const provider = new GoogleAuthProvider();
+
+    try {
+      const result = await signInWithPopup(auth, provider);
+      const firebaseUser = result.user;
+
+      // Send social login data to the backend
+      const response = await axiosInstance.post("/auth/social-login", {
+        name: firebaseUser.displayName,
+        email: firebaseUser.email,
+        photo: firebaseUser.photoURL,
+      });
+
+      // Fetch and store token from backend
+      const tokenRes = await axiosInstance.post("/jwt", {
+        email: firebaseUser.email,
+      });
+
+      if (tokenRes.data.token) {
+        localStorage.setItem("access-token", tokenRes.data.token);
+      }
+
+      setUser(firebaseUser);
+    } catch (err) {
+      console.error("Error during Google login:", err.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Logout function
   const logout = async () => {
+    setLoading(true);
     try {
       await signOut(auth);
-      localStorage.removeItem("token");
       setUser(null);
-    } catch (error) {
-      console.error("Error logging out:", error.message);
-      throw new Error("Logout failed. Please try again.");
+      localStorage.removeItem("access-token");
+    } catch (err) {
+      console.error("Error during logout:", err.message);
+    } finally {
+      setLoading(false);
     }
   };
+
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
+      setUser(currentUser || null);
+    });
+    return () => unsubscribe();
+  }, []);
 
   return (
     <AuthContext.Provider
@@ -175,4 +162,5 @@ export const AuthProvider = ({ children }) => {
   );
 };
 
+// Custom hook to use the Auth context
 export const useAuth = () => useContext(AuthContext);
