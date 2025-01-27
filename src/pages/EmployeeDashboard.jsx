@@ -1,6 +1,5 @@
 import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import axiosInstance from "@/lib/axios-instance";
 import {
   Select,
   SelectContent,
@@ -36,6 +35,8 @@ import {
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
+import axiosInstance from "@/utils/axiosInstance";
+import PaymentHistory from "@/components/shared/PaymentHistory";
 
 const taskOptions = [
   { value: "Sales", label: "Sales" },
@@ -262,7 +263,7 @@ export default function EmployeeDashboard() {
       </Card>
 
       <Sheet open={sheetOpen} onOpenChange={setSheetOpen}>
-        <SheetContent>
+        <SheetContent side="bottom">
           <SheetHeader>
             <SheetTitle>Edit Task</SheetTitle>
             <SheetDescription>
@@ -353,6 +354,8 @@ export default function EmployeeDashboard() {
           </div>
         </SheetContent>
       </Sheet>
+
+      <PaymentHistory />
     </div>
   );
 }
