@@ -5,9 +5,10 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
 import { Loader2 } from "lucide-react";
-import axiosInstance from "@/utils/axiosInstance";
+import useaxiosInstance from "@/utils/axiosInstance";
 
 export function PaymentRequestForm() {
+  const axiosInstance = useaxiosInstance();
   const queryClient = useQueryClient();
   const [formData, setFormData] = useState({
     employeeId: "",

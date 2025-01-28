@@ -40,8 +40,6 @@ const Register = () => {
     photo: null,
   });
 
-  console.log(formData);
-
   const handleGoogleLogin = async () => {
     setIsLoading(true);
     try {
@@ -49,7 +47,6 @@ const Register = () => {
       toast.success("Successfully logged in with Google");
       navigate("/");
     } catch (error) {
-      console.error("Google login failed:", error.message);
       toast.error("Google login failed. Please try again.");
     } finally {
       setIsLoading(false);
@@ -84,11 +81,9 @@ const Register = () => {
           setSelectedImage(imageUrl);
           setFormData((prev) => ({ ...prev, photo: imageUrl }));
         } else {
-          console.error("ImgBB upload failed:", data.error.message);
           toast.error("Failed to upload image. Please try again.");
         }
       } catch (error) {
-        console.error("Error uploading image:", error.message);
         toast.error("Error uploading image. Please try again.");
       } finally {
         setIsLoading(false);
@@ -105,6 +100,7 @@ const Register = () => {
     event.preventDefault();
     setIsLoading(true);
 
+    // Validate password
     if (!validatePassword(formData.password)) {
       toast.error(
         "Password must be at least 6 characters long, include a capital letter, and a special character."
@@ -114,15 +110,23 @@ const Register = () => {
     }
 
     try {
+      // Attempt to register the user
       const response = await register(formData);
-      if (response.success) {
+
+      // Check if the backend response indicates success
+      if (response?.insertedId) {
         toast.success("Account created successfully!");
         navigate("/");
+      } else {
+        // Handle unexpected backend responses
+        toast.error(
+          response?.data?.message || "Registration failed. Please try again."
+        );
       }
     } catch (error) {
-      console.error("Registration error:", error.message);
       toast.error("Registration failed. Please try again.");
     } finally {
+      // Ensure loading state is reset
       setIsLoading(false);
     }
   };

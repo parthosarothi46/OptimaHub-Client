@@ -26,15 +26,15 @@ const Router = () => {
             </PrivateRoute>
           }
         />
+        <Route
+          path="/employee/:id"
+          element={
+            <PrivateRoute>
+              <EmployeeDetail />
+            </PrivateRoute>
+          }
+        />
       </Route>
-      <Route
-        path="/employee/:id"
-        element={
-          <PrivateRoute>
-            <EmployeeDetail />
-          </PrivateRoute>
-        }
-      />
     </Routes>
   );
 };

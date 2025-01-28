@@ -10,16 +10,16 @@ import {
   CardContent,
   CardFooter,
 } from "@/components/ui/card";
-import axiosInstance from "@/utils/axiosInstance";
+import useaxiosInstance from "@/utils/axiosInstance";
+import { toast } from "sonner"; // Importing the toast from sonner
 
 export default function ContactUs() {
+  const axiosInstance = useaxiosInstance();
   const [formData, setFormData] = useState({
     email: "",
     message: "",
   });
   const [isLoading, setIsLoading] = useState(false);
-  const [success, setSuccess] = useState(false);
-  const [error, setError] = useState("");
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -29,17 +29,17 @@ export default function ContactUs() {
   const onSubmit = async (event) => {
     event.preventDefault();
     setIsLoading(true);
-    setSuccess(false);
-    setError("");
 
     try {
       const response = await axiosInstance.post("/contact-us", formData);
       if (response.status === 201) {
-        setSuccess(true);
+        // Success Toast
+        toast.success("Your message has been sent successfully!");
         setFormData({ email: "", message: "" });
       }
     } catch (err) {
-      setError("Failed to send your message. Please try again later.");
+      // Error Toast
+      toast.error("Failed to send your message. Please try again later.");
     } finally {
       setIsLoading(false);
     }
@@ -109,14 +109,6 @@ export default function ContactUs() {
             <Button className="w-full" type="submit" disabled={isLoading}>
               {isLoading ? "Sending..." : "Send Message"}
             </Button>
-
-            {/* Success/Error Messages */}
-            {success && (
-              <p className="mt-2 text-sm text-green-600">
-                Your message has been sent successfully!
-              </p>
-            )}
-            {error && <p className="mt-2 text-sm text-red-600">{error}</p>}
           </form>
         </CardContent>
         <CardFooter className="text-center">

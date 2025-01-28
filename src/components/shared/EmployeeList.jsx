@@ -11,8 +11,10 @@ import {
 } from "@/components/ui/table";
 import { toast } from "sonner";
 import { Loader2 } from "lucide-react";
-import axiosInstance from "@/utils/axiosInstance";
 import { EmployeeDetails } from "./EmployeeDetails";
+import useaxiosInstance from "@/utils/axiosInstance";
+
+const axiosInstance = useaxiosInstance();
 
 // Fetch all employees
 const fetchEmployees = async () => {

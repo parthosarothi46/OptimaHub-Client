@@ -1,6 +1,5 @@
 import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import axiosInstance from "@/utils/axiosInstance";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   Table,
@@ -29,8 +28,10 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Link } from "react-router";
+import useaxiosInstance from "@/utils/axiosInstance";
 
 const HRDashboard = () => {
+  const axiosInstance = useaxiosInstance();
   const queryClient = useQueryClient();
   const [selectedEmployee, setSelectedEmployee] = useState(null);
   const [paymentDetails, setPaymentDetails] = useState({ month: "", year: "" });
@@ -44,17 +45,7 @@ const HRDashboard = () => {
 
   // Fetch work records from API
   const fetchWorkRecords = async () => {
-    const token = localStorage.getItem("token");
-    if (!token) {
-      throw new Error("No token found");
-    }
-
-    const { data } = await axiosInstance.get("/hr/work-records", {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    });
-
+    const { data } = await axiosInstance.get("/hr/work-records");
     return data;
   };
 
@@ -64,7 +55,11 @@ const HRDashboard = () => {
     queryFn: fetchEmployees,
   });
 
-  const { data: workRecords, isLoading: isLoadingWorkRecords } = useQuery({
+  const {
+    data: workRecords,
+    isLoading: isLoadingWorkRecords,
+    error: workRecordsError,
+  } = useQuery({
     queryKey: ["workRecords"],
     queryFn: fetchWorkRecords,
   });
@@ -124,6 +119,10 @@ const HRDashboard = () => {
   });
 
   if (isLoadingEmployees || isLoadingWorkRecords) return <div>Loading...</div>;
+
+  if (workRecordsError) {
+    return <div>Error loading work records: {workRecordsError.message}</div>;
+  }
 
   return (
     <div className="container mx-auto p-4 space-y-8">

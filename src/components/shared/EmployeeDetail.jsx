@@ -2,7 +2,6 @@ import { useState, useMemo } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Bar } from "react-chartjs-2";
 import { useParams } from "react-router";
-import axiosInstance from "@/utils/axiosInstance";
 import {
   Chart as ChartJS,
   CategoryScale,
@@ -12,6 +11,7 @@ import {
   Tooltip,
   Legend,
 } from "chart.js";
+import useaxiosInstance from "@/utils/axiosInstance";
 
 ChartJS.register(
   CategoryScale,
@@ -23,6 +23,7 @@ ChartJS.register(
 );
 
 const EmployeeDetail = () => {
+  const axiosInstance = useaxiosInstance();
   const { id } = useParams();
   const [selectedMonth, setSelectedMonth] = useState("");
 

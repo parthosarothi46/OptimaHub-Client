@@ -35,8 +35,8 @@ import {
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
-import axiosInstance from "@/utils/axiosInstance";
 import PaymentHistory from "@/components/shared/PaymentHistory";
+import useaxiosInstance from "@/utils/axiosInstance";
 
 const taskOptions = [
   { value: "Sales", label: "Sales" },
@@ -46,6 +46,7 @@ const taskOptions = [
 ];
 
 export default function EmployeeDashboard() {
+  const axiosInstance = useaxiosInstance();
   const [form, setForm] = useState({
     task: "Sales",
     hoursWorked: "",

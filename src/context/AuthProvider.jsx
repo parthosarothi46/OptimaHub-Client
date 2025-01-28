@@ -18,8 +18,6 @@ export const AuthProvider = ({ children }) => {
   const [loading, setLoading] = useState(false);
   const axiosInstance = useaxiosInstance();
 
-  console.log(user);
-
   // Register a new user
   const register = async (userData) => {
     setLoading(true);
@@ -56,18 +54,8 @@ export const AuthProvider = ({ children }) => {
         salary,
         photo,
       });
-
-      // Check if the backend response contains 'success'
-      if (response.data && response.data.success) {
-        console.log("Registration successful:", response.data.message);
-      } else {
-        console.error(
-          "Registration failed:",
-          response.data?.message || "Unknown error"
-        );
-      }
+      return response.data;
     } catch (err) {
-      // Log detailed error for debugging
       console.error(
         "Error during registration:",
         err.response?.data || err.message
@@ -82,15 +70,7 @@ export const AuthProvider = ({ children }) => {
     setLoading(true);
     try {
       const response = await signInWithEmailAndPassword(auth, email, password);
-
-      // Fetch and store token from backend
-      const userInfo = { email };
-      const tokenRes = await axiosInstance.post("/jwt", userInfo);
-
-      if (tokenRes.data.token) {
-        localStorage.setItem("access-token", tokenRes.data.token);
-      }
-
+      console.log(response);
       return response;
     } catch (err) {
       console.error("Error during login:", err.message);
@@ -114,17 +94,6 @@ export const AuthProvider = ({ children }) => {
         email: firebaseUser.email,
         photo: firebaseUser.photoURL,
       });
-
-      // Fetch and store token from backend
-      const tokenRes = await axiosInstance.post("/jwt", {
-        email: firebaseUser.email,
-      });
-
-      if (tokenRes.data.token) {
-        localStorage.setItem("access-token", tokenRes.data.token);
-      }
-
-      setUser(firebaseUser);
     } catch (err) {
       console.error("Error during Google login:", err.message);
     } finally {
@@ -138,7 +107,6 @@ export const AuthProvider = ({ children }) => {
     try {
       await signOut(auth);
       setUser(null);
-      localStorage.removeItem("access-token");
     } catch (err) {
       console.error("Error during logout:", err.message);
     } finally {
@@ -148,10 +116,24 @@ export const AuthProvider = ({ children }) => {
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
-      setUser(currentUser || null);
+      setUser(currentUser);
+      if (currentUser) {
+        const userInfo = { email: currentUser.email };
+        axiosInstance.post("/jwt", userInfo).then((res) => {
+          if (res.data.token) {
+            localStorage.setItem("access-token", res.data.token);
+            setLoading(false);
+          }
+        });
+      } else {
+        localStorage.removeItem("access-token");
+        setLoading(false);
+      }
     });
-    return () => unsubscribe();
-  }, []);
+    return () => {
+      return unsubscribe();
+    };
+  }, [axiosInstance]);
 
   return (
     <AuthContext.Provider

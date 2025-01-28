@@ -11,9 +11,10 @@ import {
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Loader2 } from "lucide-react";
-import axiosInstance from "@/utils/axiosInstance";
+import useaxiosInstance from "@/utils/axiosInstance";
 
 export default function PaymentHistory() {
+  const axiosInstance = useaxiosInstance();
   const [currentPage, setCurrentPage] = useState(1);
 
   const { data, isLoading, isError } = useQuery({

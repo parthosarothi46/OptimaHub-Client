@@ -8,10 +8,11 @@ import {
   DialogDescription,
 } from "@/components/ui/dialog";
 import { Loader2 } from "lucide-react";
-import axiosInstance from "@/utils/axiosInstance";
 import { formatDate } from "@/lib/utils";
+import useaxiosInstance from "@/utils/axiosInstance";
 
 export function EmployeeDetails({ employee, onClose }) {
+  const axiosInstance = useaxiosInstance();
   const { data: details, isLoading } = useQuery({
     queryKey: ["employeeDetails", employee._id],
     queryFn: async () => {

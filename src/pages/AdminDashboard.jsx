@@ -1,8 +1,5 @@
 import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import axiosInstance from "@/utils/axiosInstance";
-import { toast } from "react-toastify";
-import "react-toastify/dist/ReactToastify.css";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   Table,
@@ -23,8 +20,11 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Grid2X2, List } from "lucide-react";
+import { toast } from "sonner";
+import useaxiosInstance from "@/utils/axiosInstance";
 
 export default function AdminDashboard() {
+  const axiosInstance = useaxiosInstance();
   const [view, setView] = useState("table");
   const queryClient = useQueryClient();
 
