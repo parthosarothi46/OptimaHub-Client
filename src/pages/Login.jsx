@@ -13,12 +13,15 @@ import {
 } from "@/components/ui/card";
 import { FcGoogle } from "react-icons/fc";
 import { useAuth } from "@/context/AuthProvider";
+import { toast } from "sonner"; // For toast notifications
+import { Link, useNavigate } from "react-router";
 
 export default function Login() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const { login, googleLogin } = useAuth();
+  const navigate = useNavigate(); // Hook for navigation
 
   const handleSubmit = async (event) => {
     event.preventDefault();
@@ -26,9 +29,10 @@ export default function Login() {
 
     try {
       await login(email, password);
-      // Handle successful login (e.g., redirect to dashboard or home page)
+      toast.success("Successfully logged in!");
+      navigate("/"); // Redirect to home page after successful login
     } catch (error) {
-      console.error("Login failed:", error.message);
+      toast.error("Invalid email or password. Please try again.");
     } finally {
       setIsLoading(false);
     }
@@ -38,16 +42,17 @@ export default function Login() {
     setIsLoading(true);
     try {
       await googleLogin();
-      // Handle successful Google login (e.g., redirect to dashboard or home page)
+      toast.success("Successfully logged in with Google!");
+      navigate("/"); // Redirect to home page after successful login
     } catch (error) {
-      console.error("Google login failed:", error.message);
+      toast.error("Google login failed. Please try again.");
     } finally {
       setIsLoading(false);
     }
   };
 
   return (
-    <div className="flex items-center justify-center min-h-screen px-4 py-12 sm:px-6 lg:px-8">
+    <div className="flex items-center justify-center px-4 py-12 sm:px-6 lg:px-8">
       <Card className="w-full max-w-md">
         <CardHeader className="space-y-1">
           <CardTitle className="text-2xl font-bold text-center">
@@ -119,13 +124,13 @@ export default function Login() {
             <span className="mr-1 hidden sm:inline-block">
               Don&apos;t have an account?
             </span>
-            <a
+            <Link
               aria-label="Sign up"
-              href="#"
+              to="/register"
               className="text-primary underline-offset-4 transition-colors hover:underline"
             >
               Sign up
-            </a>
+            </Link>
           </div>
           <a
             aria-label="Reset password"
