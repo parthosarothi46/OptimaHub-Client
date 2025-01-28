@@ -71,7 +71,6 @@ export const AuthProvider = ({ children }) => {
     setLoading(true);
     try {
       const response = await signInWithEmailAndPassword(auth, email, password);
-      console.log(response);
       return response;
     } catch (err) {
       console.error("Error during login:", err.message);

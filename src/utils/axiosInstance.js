@@ -1,6 +1,7 @@
 import axios from "axios";
 
 const axiosInstance = axios.create({
+  // baseURL: "https://b10a12.vercel.app",
   baseURL: "http://localhost:5000",
   withCredentials: true,
 });
@@ -26,7 +27,6 @@ axiosInstance.interceptors.response.use(
     if (error.response?.status === 401) {
       console.error("Unauthorized - Redirecting to login.");
       localStorage.removeItem("access-token");
-      window.location.href = "/login";
     }
     return Promise.reject(error);
   }
