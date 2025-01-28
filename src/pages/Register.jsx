@@ -20,7 +20,7 @@ import {
 import { Loader2, Upload } from "lucide-react";
 import { useAuth } from "@/context/AuthProvider";
 import { FcGoogle } from "react-icons/fc";
-import { useNavigate } from "react-router";
+import { Link, useNavigate } from "react-router";
 import { toast } from "sonner";
 
 const Register = () => {
@@ -312,12 +312,12 @@ const Register = () => {
         <CardFooter className="flex justify-center">
           <div className="text-sm text-muted-foreground">
             Already have an account?{" "}
-            <a
-              href="#"
+            <Link
+              to="/login"
               className="text-primary underline-offset-4 transition-colors hover:underline"
             >
               Sign in
-            </a>
+            </Link>
           </div>
         </CardFooter>
       </Card>
