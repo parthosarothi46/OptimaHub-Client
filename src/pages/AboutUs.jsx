@@ -101,17 +101,20 @@ const AboutUs = () => {
                   {
                     name: "John Doe",
                     role: "CEO & Co-Founder",
-                    imageUrl: "/placeholder.svg?height=150&width=150",
+                    imageUrl:
+                      "https://www.perkosis.com/uploads/staffs/big/9.jpg",
                   },
                   {
                     name: "Jane Smith",
                     role: "CTO",
-                    imageUrl: "/placeholder.svg?height=150&width=150",
+                    imageUrl:
+                      "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQRDrklSzfO5RhwpysB8UcYqnyUClgNumgW38O73qRdD7O0pK3BBQ3MPrr2Mw45np4f17w",
                   },
                   {
                     name: "Mike Johnson",
                     role: "Head of Product",
-                    imageUrl: "/placeholder.svg?height=150&width=150",
+                    imageUrl:
+                      "https://pbs.twimg.com/profile_images/1807858058380349440/V8iMdtLm.jpg",
                   },
                 ].map((person) => (
                   <li key={person.name}>
