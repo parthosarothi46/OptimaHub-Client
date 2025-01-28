@@ -22,17 +22,14 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { Grid2X2, List } from "lucide-react";
 import { toast } from "sonner";
 import useaxiosInstance from "@/utils/axiosInstance";
+import { LoadingState } from "@/components/shared/LoadingState";
 
 export default function AdminDashboard() {
   const axiosInstance = useaxiosInstance();
   const [view, setView] = useState("table");
   const queryClient = useQueryClient();
 
-  const {
-    data: employees,
-    isLoading,
-    isError,
-  } = useQuery({
+  const { data: employees, isLoading } = useQuery({
     queryKey: ["employees"],
     queryFn: async () => {
       const response = await axiosInstance.get("/employees");
@@ -91,16 +88,7 @@ export default function AdminDashboard() {
     }
   };
 
-  if (isLoading) return <div>Loading employees...</div>;
-  if (isError)
-    return (
-      <div>
-        Error loading employees.{" "}
-        <Button onClick={() => queryClient.invalidateQueries(["employees"])}>
-          Retry
-        </Button>
-      </div>
-    );
+  if (isLoading) return <LoadingState />;
 
   return (
     <div className="container mx-auto p-4 space-y-8">

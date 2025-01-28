@@ -10,12 +10,13 @@ import {
 } from "firebase/auth";
 import { auth } from "@/firebase/firebase.config";
 import useaxiosInstance from "@/utils/axiosInstance";
+import { LoadingState } from "@/components/shared/LoadingState";
 
 const AuthContext = createContext(null);
 
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
   const axiosInstance = useaxiosInstance();
 
   // Register a new user
@@ -117,23 +118,26 @@ export const AuthProvider = ({ children }) => {
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
       setUser(currentUser);
+      setLoading(false);
       if (currentUser) {
         const userInfo = { email: currentUser.email };
         axiosInstance.post("/jwt", userInfo).then((res) => {
           if (res.data.token) {
             localStorage.setItem("access-token", res.data.token);
-            setLoading(false);
           }
         });
       } else {
         localStorage.removeItem("access-token");
-        setLoading(false);
       }
     });
     return () => {
       return unsubscribe();
     };
   }, [axiosInstance]);
+
+  if (loading) {
+    return <LoadingState />; // Show spinner when loading
+  }
 
   return (
     <AuthContext.Provider

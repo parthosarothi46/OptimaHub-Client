@@ -4,12 +4,15 @@ import HRDashboard from "./HRDashboard";
 import EmployeeDashboard from "./EmployeeDashboard";
 import useaxiosInstance from "@/utils/axiosInstance";
 import { useQuery } from "@tanstack/react-query";
+import { LoadingState } from "@/components/shared/LoadingState";
+import { useEffect } from "react";
+import { useNavigate } from "react-router";
 
 const Dashboard = () => {
   const { user } = useAuth();
   const axiosInstance = useaxiosInstance();
+  const navigate = useNavigate();
 
-  // Fetch user data using TanStack Query (v5 syntax)
   const { data: userData, isLoading } = useQuery({
     queryKey: ["userData", user?.email],
     queryFn: async () => {
@@ -17,10 +20,16 @@ const Dashboard = () => {
       const response = await axiosInstance.get(`/auth/user/${user.email}`);
       return response.data;
     },
-    enabled: !!user?.email, // Only run the query if the email exists
+    enabled: !!user?.email,
   });
 
-  if (isLoading) return <div>Loading...</div>;
+  useEffect(() => {
+    if (!user) {
+      navigate("/login");
+    }
+  }, [user, navigate]);
+
+  if (isLoading) return <LoadingState />;
 
   if (userData?.role === "admin") {
     return <AdminDashboard />;

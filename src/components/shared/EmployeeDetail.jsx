@@ -1,29 +1,27 @@
 import { useState, useMemo } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { Bar } from "react-chartjs-2";
-import { useParams } from "react-router";
+import useAxiosInstance from "@/utils/axiosInstance";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
-  Chart as ChartJS,
-  CategoryScale,
-  LinearScale,
-  BarElement,
-  Title,
-  Tooltip,
-  Legend,
-} from "chart.js";
-import useaxiosInstance from "@/utils/axiosInstance";
-
-ChartJS.register(
-  CategoryScale,
-  LinearScale,
-  BarElement,
-  Title,
-  Tooltip,
-  Legend
-);
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Badge } from "@/components/ui/badge";
+import { Skeleton } from "@/components/ui/skeleton";
+import {
+  ChartContainer,
+  ChartTooltip,
+  ChartTooltipContent,
+} from "@/components/ui/chart";
+import { Bar, BarChart, ResponsiveContainer, XAxis, YAxis } from "recharts";
+import { useParams } from "react-router";
 
 const EmployeeDetail = () => {
-  const axiosInstance = useaxiosInstance();
+  const axiosInstance = useAxiosInstance();
   const { id } = useParams();
   const [selectedMonth, setSelectedMonth] = useState("");
 
@@ -54,71 +52,125 @@ const EmployeeDetail = () => {
     );
   }, [workRecords]);
 
-  // Chart data for salaries over time
+  // Chart data for work hours over time
   const chartData = useMemo(() => {
-    if (!workRecords) return {};
-    return {
-      labels: workRecords.map((record) => record.date.slice(0, 7)), // Format as YYYY-MM
-      datasets: [
-        {
-          label: "Work Hours",
-          data: workRecords.map((record) => record.hoursWorked),
-          backgroundColor: "rgba(75, 192, 192, 0.6)",
-          borderColor: "rgba(75, 192, 192, 1)",
-          borderWidth: 1,
-        },
-      ],
-    };
+    if (!workRecords) return [];
+    return workRecords.map((record) => ({
+      date: new Date(record.date).toLocaleDateString("en-US", {
+        month: "short",
+        day: "numeric",
+      }),
+      hours: record.hoursWorked,
+    }));
   }, [workRecords]);
 
-  if (isEmployeeLoading || isWorkRecordsLoading) return <div>Loading...</div>;
+  if (isEmployeeLoading || isWorkRecordsLoading) {
+    return (
+      <div className="container mx-auto p-4 space-y-4">
+        <Skeleton className="h-12 w-[250px]" />
+        <div className="grid gap-4 md:grid-cols-2">
+          <Skeleton className="h-[200px]" />
+          <Skeleton className="h-[200px]" />
+        </div>
+        <Skeleton className="h-[400px]" />
+      </div>
+    );
+  }
 
   return (
-    <div className="p-4">
-      <h1 className="text-2xl font-bold mb-4">{employee?.employee?.name}</h1>
-      <div className="mb-6 flex items-center space-x-4">
-        <img
-          src={employee?.employee?.photo}
-          alt={`${employee?.employee?.name}'s Photo`}
-          className="w-16 h-16 rounded-full"
-        />
-        <div>
-          <p>Designation: {employee?.employee?.designation}</p>
-          <p>Email: {employee?.employee?.email}</p>
-        </div>
-      </div>
+    <div className="container mx-auto p-4 space-y-6">
+      <Card>
+        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+          <CardTitle className="text-2xl font-bold">
+            {employee?.employee?.name}
+          </CardTitle>
+          <Badge variant="outline">{employee?.employee?.designation}</Badge>
+        </CardHeader>
+        <CardContent>
+          <div className="flex flex-col md:flex-row items-center md:items-start space-y-4 md:space-y-0 md:space-x-4">
+            <Avatar className="w-24 h-24">
+              <AvatarImage
+                src={employee?.employee?.photo}
+                alt={`${employee?.employee?.name}'s Photo`}
+              />
+              <AvatarFallback>
+                {employee?.employee?.name.charAt(0)}
+              </AvatarFallback>
+            </Avatar>
+            <div className="space-y-2">
+              <p>
+                <strong>Email:</strong> {employee?.employee?.email}
+              </p>
+              <p>
+                <strong>Salary:</strong> ${employee?.employee?.salary}
+              </p>
+              <p>
+                <strong>Bank Account:</strong> {employee?.employee?.bankAccount}
+              </p>
+              <p>
+                <strong>Verified:</strong>{" "}
+                {employee?.employee?.isVerified ? "Yes" : "No"}
+              </p>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
 
-      <div className="mb-4">
-        <label htmlFor="month" className="block mb-2 font-medium">
-          Filter by Month:
-        </label>
-        <select
-          id="month"
-          value={selectedMonth}
-          onChange={(e) => setSelectedMonth(e.target.value)}
-          className="p-2 border rounded-md"
-        >
-          <option value="">All</option>
-          {Array.from({ length: 12 }, (_, i) => i + 1).map((month) => (
-            <option key={month} value={month.toString().padStart(2, "0")}>
-              {new Date(0, month - 1).toLocaleString("default", {
-                month: "long",
-              })}
-            </option>
-          ))}
-        </select>
-      </div>
+      <Card>
+        <CardHeader>
+          <CardTitle>Work Hours</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="flex flex-col md:flex-row justify-between items-start md:items-center space-y-4 md:space-y-0 mb-6">
+            <div>
+              <h2 className="text-lg font-bold">
+                Total Work Hours: {totalWorkHours}
+              </h2>
+            </div>
+            <Select value={selectedMonth} onValueChange={setSelectedMonth}>
+              <SelectTrigger className="w-[180px]">
+                <SelectValue placeholder="Filter by Month" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="00">All Months</SelectItem>
+                {Array.from({ length: 12 }, (_, i) => i + 1).map((month) => (
+                  <SelectItem
+                    key={month}
+                    value={month.toString().padStart(2, "0")}
+                  >
+                    {new Date(0, month - 1).toLocaleString("default", {
+                      month: "long",
+                    })}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
 
-      <div className="mb-6">
-        <h2 className="text-lg font-bold">
-          Total Work Hours: {totalWorkHours}
-        </h2>
-      </div>
-
-      <div>
-        <h2 className="text-lg font-bold mb-4">Work Hours Over Time</h2>
-        <Bar data={chartData} />
-      </div>
+          <ChartContainer
+            config={{
+              hours: {
+                label: "Work Hours",
+                color: "hsl(var(--chart-1))",
+              },
+            }}
+            className="h-[400px]"
+          >
+            <ResponsiveContainer width="100%" height="100%">
+              <BarChart data={chartData}>
+                <XAxis dataKey="date" />
+                <YAxis />
+                <ChartTooltip content={<ChartTooltipContent />} />
+                <Bar
+                  dataKey="hours"
+                  fill="var(--color-hours)"
+                  radius={[4, 4, 0, 0]}
+                />
+              </BarChart>
+            </ResponsiveContainer>
+          </ChartContainer>
+        </CardContent>
+      </Card>
     </div>
   );
 };
