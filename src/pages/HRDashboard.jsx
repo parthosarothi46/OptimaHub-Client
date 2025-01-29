@@ -51,7 +51,7 @@ const HRDashboard = () => {
 
   // Fetch employees from API
   const fetchEmployees = async () => {
-    const { data } = await axiosInstance.get("/employees");
+    const { data } = await axiosInstance.get("/hr/employees");
     return data;
   };
 
@@ -195,7 +195,7 @@ const HRDashboard = () => {
                             )}
                           </Button>
                         </TableCell>
-                        <TableCell>{employee.bankAccount}</TableCell>
+                        <TableCell>{employee.bankAccountNo}</TableCell>
                         <TableCell>${employee.salary}</TableCell>
                         <TableCell>
                           <Dialog>
@@ -206,7 +206,7 @@ const HRDashboard = () => {
                                 onClick={() => handlePayClick(employee)}
                                 disabled={!employee.isVerified}
                               >
-                                Pay
+                                Pay Request
                               </Button>
                             </DialogTrigger>
                             <DialogContent>
@@ -365,7 +365,7 @@ const HRDashboard = () => {
                   <TableBody>
                     {filteredWorkRecords?.map((record) => (
                       <TableRow key={record._id}>
-                        <TableCell>{record.employeeId}</TableCell>
+                        <TableCell>{record.name}</TableCell>
                         <TableCell>{record.task}</TableCell>
                         <TableCell>{record.hoursWorked}</TableCell>
                         <TableCell>

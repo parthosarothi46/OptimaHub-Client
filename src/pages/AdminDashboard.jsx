@@ -23,6 +23,7 @@ import { Grid2X2, List } from "lucide-react";
 import { toast } from "sonner";
 import useaxiosInstance from "@/utils/axiosInstance";
 import { LoadingState } from "@/components/shared/LoadingState";
+import Payroll from "@/components/shared/Payroll";
 
 export default function AdminDashboard() {
   const axiosInstance = useaxiosInstance();
@@ -275,6 +276,7 @@ export default function AdminDashboard() {
           )}
         </CardContent>
       </Card>
+      <Payroll />
     </div>
   );
 }

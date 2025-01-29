@@ -38,7 +38,7 @@ const EmployeeDetail = () => {
   const { data: workRecords, isLoading: isWorkRecordsLoading } = useQuery({
     queryKey: ["workRecords", id, selectedMonth],
     queryFn: async () => {
-      const { data } = await axiosInstance.get("/hr/work-records", {
+      const { data } = await axiosInstance.get("/work-records/employee", {
         params: { employeeId: id, month: selectedMonth },
       });
       return data;
@@ -48,7 +48,10 @@ const EmployeeDetail = () => {
   // Derived state for total work hours
   const totalWorkHours = useMemo(() => {
     return (
-      workRecords?.reduce((sum, record) => sum + record.hoursWorked, 0) || 0
+      workRecords?.reduce(
+        (sum, record) => sum + Number(record.hoursWorked),
+        0
+      ) || 0
     );
   }, [workRecords]);
 
@@ -105,7 +108,8 @@ const EmployeeDetail = () => {
                 <strong>Salary:</strong> ${employee?.employee?.salary}
               </p>
               <p>
-                <strong>Bank Account:</strong> {employee?.employee?.bankAccount}
+                <strong>Bank Account:</strong>{" "}
+                {employee?.employee?.bankAccountNo}
               </p>
               <p>
                 <strong>Verified:</strong>{" "}

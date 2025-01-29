@@ -40,6 +40,8 @@ export default function PaymentHistory() {
     }
   };
 
+  console.log(data);
+
   return (
     <Card className="mt-8">
       <CardHeader>
@@ -68,7 +70,7 @@ export default function PaymentHistory() {
                   <TableRow key={payment._id}>
                     <TableCell>{payment.month}</TableCell>
                     <TableCell>{payment.year}</TableCell>
-                    <TableCell>{payment.amount}</TableCell>
+                    <TableCell>{payment.salary}</TableCell>
                     <TableCell>{payment.transactionId}</TableCell>
                   </TableRow>
                 ))}
