@@ -44,7 +44,6 @@ const Payroll = () => {
 
   const handlePaymentSuccess = async (paymentDetails) => {
     const { employeeId, salary, month, year } = selectedRequest;
-    console.log("selected:", selectedRequest);
     try {
       await axiosInstance.post("/payroll-payment", {
         employeeId,
