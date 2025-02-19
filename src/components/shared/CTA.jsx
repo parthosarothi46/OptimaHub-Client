@@ -1,5 +1,7 @@
 import { motion } from "framer-motion";
 import { ArrowRight } from "lucide-react";
+import { Link } from "react-router";
+import { Button } from "../ui/button";
 
 const CTA = () => {
   return (
@@ -18,13 +20,15 @@ const CTA = () => {
             their employee management processes.
           </p>
           <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
-            <a
-              href="#"
+            <Link
+              to="/register"
               className="inline-flex items-center px-6 py-3 border border-transparent text-base font-medium rounded-md transition duration-300"
             >
-              Get Started Today
-              <ArrowRight className="ml-2 -mr-1 w-5 h-5" />
-            </a>
+              <Button>
+                Get Started Today
+                <ArrowRight className="ml-2 -mr-1 w-5 h-5" />
+              </Button>
+            </Link>
           </motion.div>
         </motion.div>
       </div>
