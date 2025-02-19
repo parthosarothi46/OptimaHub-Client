@@ -103,7 +103,7 @@ export default function AdminDashboard() {
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5 }}
       >
-        <Card className="">
+        <Card>
           <CardHeader>
             <CardTitle className="text-3xl font-bold">
               Admin Dashboard

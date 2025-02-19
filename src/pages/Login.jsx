@@ -13,7 +13,7 @@ import {
 } from "@/components/ui/card";
 import { FcGoogle } from "react-icons/fc";
 import { useAuth } from "@/context/AuthProvider";
-import { toast } from "sonner"; // For toast notifications
+import { toast } from "sonner";
 import { Link, useNavigate } from "react-router";
 
 export default function Login() {
@@ -21,7 +21,7 @@ export default function Login() {
   const [password, setPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const { login, googleLogin } = useAuth();
-  const navigate = useNavigate(); // Hook for navigation
+  const navigate = useNavigate();
 
   const handleSubmit = async (event) => {
     event.preventDefault();
@@ -30,7 +30,7 @@ export default function Login() {
     try {
       await login(email, password);
       toast.success("Successfully logged in!");
-      navigate("/"); // Redirect to home page after successful login
+      navigate("/");
     } catch (error) {
       toast.error("Invalid email or password. Please try again.");
     } finally {
@@ -43,7 +43,7 @@ export default function Login() {
     try {
       await googleLogin();
       toast.success("Successfully logged in with Google!");
-      navigate("/"); // Redirect to home page after successful login
+      navigate("/");
     } catch (error) {
       toast.error("Google login failed. Please try again.");
     } finally {

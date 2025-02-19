@@ -1,8 +1,8 @@
 import { createContext, useContext, useEffect, useState } from "react";
 
 const ThemeProviderContext = createContext({
-  theme: "system", // Default theme
-  setTheme: () => null, // Placeholder function
+  theme: "system",
+  setTheme: () => null,
 });
 
 export const ThemeProvider = ({

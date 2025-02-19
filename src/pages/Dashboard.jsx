@@ -42,8 +42,6 @@ const Dashboard = () => {
   if (userData?.role === "employee") {
     return <EmployeeDashboard />;
   }
-
-  // If no valid role, show access denied message
   return <div>Access Denied</div>;
 };
 

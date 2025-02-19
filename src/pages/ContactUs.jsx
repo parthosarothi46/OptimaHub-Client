@@ -11,7 +11,7 @@ import {
   CardFooter,
 } from "@/components/ui/card";
 import useaxiosInstance from "@/utils/axiosInstance";
-import { toast } from "sonner"; // Importing the toast from sonner
+import { toast } from "sonner";
 
 export default function ContactUs() {
   const axiosInstance = useaxiosInstance();

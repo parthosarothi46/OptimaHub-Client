@@ -6,15 +6,13 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import { Edit, Mail, Briefcase, CreditCard, Building } from "lucide-react";
+import { Mail, Briefcase, CreditCard, Building } from "lucide-react";
 
 const MyProfile = () => {
   const { user } = useAuth();
   const axiosInstance = useAxiosInstance();
   const [userData, setUserData] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
 
   useEffect(() => {
     if (user) {

@@ -40,8 +40,6 @@ export default function PaymentHistory() {
     }
   };
 
-  console.log(data);
-
   return (
     <Card className="mt-8">
       <CardHeader>
