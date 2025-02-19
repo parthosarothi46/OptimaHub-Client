@@ -1,6 +1,5 @@
 import { useState, useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
-import axios from "axios";
 import { loadStripe } from "@stripe/stripe-js";
 import {
   Elements,
@@ -11,9 +10,7 @@ import {
 import useaxiosInstance from "@/utils/axiosInstance";
 
 // Stripe public key
-const stripePromise = loadStripe(
-  "pk_test_51QmbclAgjwdD8FfG7JTqCDmFY3gSzHpT0xmoL4bi5OBoFNiSzdHLf1PsKW1WuLrIlXZhZglvaw9hCAarTKePGMzc000r6FF6jY"
-); // Replace with your own public key
+const stripePromise = loadStripe(`${import.meta.env.VITE_STRIPE_PUBLIC_KEY}`);
 
 const Payroll = () => {
   const [payrollRequests, setPayrollRequests] = useState([]);
