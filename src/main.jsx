@@ -11,11 +11,11 @@ import { Toaster } from "sonner";
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
-      retry: 1, // Retry failed queries once
-      refetchOnWindowFocus: false, // Disable refetching on window focus
+      retry: 1,
+      refetchOnWindowFocus: false,
     },
     mutations: {
-      retry: 1, // Retry failed mutations once
+      retry: 1,
     },
   },
 });
