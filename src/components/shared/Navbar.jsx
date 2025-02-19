@@ -20,6 +20,7 @@ const navItems = [
   { href: "/dashboard", label: "Dashboard" },
   { href: "/contact", label: "Contact Us" },
   { href: "/about", label: "About Us" },
+  { href: "/profile", label: "My Profile" },
 ];
 
 const Navbar = () => {
